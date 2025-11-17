@@ -154,13 +154,34 @@ pushd "$CURL_BUILD_DIR"
 
             packages="$(cygpath -m "$stage/packages")"
             load_vsvars
+            
+            echo "packages = $packages"
+            echo "=== contents of $packages/lib/release ==="
+            ls -l "$packages/lib/release" || echo "no such dir"
+
+            echo "=== contents of $packages/include/openssl ==="
+            ls -l "$packages/include/openssl" || echo "no such dir"
 
             cmake "$(cygpath -m "${CURL_SOURCE_DIR}")" \
                 -G"$AUTOBUILD_WIN_CMAKE_GEN" -A"$AUTOBUILD_WIN_VSPLATFORM" \
                 -DCMAKE_C_FLAGS:STRING="$plainopts" \
                 -DCMAKE_CXX_FLAGS:STRING="$opts" \
+                -DBUILD_SHARED_LIBS=OFF \
                 -DENABLE_THREADED_RESOLVER:BOOL=ON \
-                -DCMAKE_USE_OPENSSL:BOOL=TRUE \
+                -DCURL_USE_LIBPSL=OFF \
+                -DCURL_DISABLE_LDAP=ON \
+                -DCURL_DISABLE_LDAPS=ON \
+                -DCURL_BROTLI=OFF \
+                -DCURL_ZTSD=OFF \
+                -DCURL_STATICLIB=ON \
+                -DCURL_USE_OPENSSL:BOOL=TRUE \
+                -DOPENSSL_ROOT_DIR="$packages" \
+                -DOPENSSL_USE_STATIC_LIBS=ON \
+                -DOPENSSL_INCLUDE_DIR="$packages/include/openssl" \
+                -DOPENSSL_CRYPTO_LIBRARY="$packages/lib/release/libcrypto.lib" \
+                -DOPENSSL_SSL_LIBRARY="$packages/lib/release/libssl.lib" \
+                -DZLIB_INCLUDE_DIR:PATH="$packages/include/zlib-ng" \
+                -DZLIB_LIBRARY:FILEPATH="$packages/lib/release/zlib.lib" \
                 -DUSE_NGHTTP2:BOOL=TRUE \
                 -DNGHTTP2_INCLUDE_DIR:FILEPATH="$packages/include" \
                 -DNGHTTP2_LIBRARY:FILEPATH="$packages/lib/release/nghttp2.lib" \
@@ -241,7 +262,21 @@ pushd "$CURL_BUILD_DIR"
                         -DCMAKE_CXX_FLAGS:STRING="$cxx_opts" \
                         -DBUILD_SHARED_LIBS:BOOL=OFF \
                         -DENABLE_THREADED_RESOLVER:BOOL=ON \
-                        -DCMAKE_USE_OPENSSL:BOOL=TRUE \
+                        -DCURL_BROTLI=OFF \
+                        -DUSE_LIBIDN2=OFF \
+                        -DCURL_ZSTD=OFF \
+                        -DCURL_USE_LIBSSH2=OFF \
+                        -DCURL_USE_LIBPSL=OFF \
+                        -DCURL_DISABLE_LDAP=ON \
+                        -DCURL_DISABLE_LDAPS=ON \
+                        -DCURL_BROTLI=OFF \
+                        -DCURL_USE_OPENSSL:BOOL=TRUE \
+                        -DOPENSSL_ROOT_DIR="$stage/packages" \
+                        -DOPENSSL_USE_STATIC_LIBS=ON \
+                        -DOPENSSL_INCLUDE_DIR="$OPENSSL_INCLUDE" \
+                        -DOPENSSL_CRYPTO_LIBRARY="$stage/packages/lib/release/libcrypto.a" \
+                        -DOPENSSL_SSL_LIBRARY="$stage/packages/lib/release/libssl.a" \
+                        -DOPENSSL_USE_STATIC_LIBS=ON \
                         -DUSE_NGHTTP2:BOOL=TRUE \
                         -DNGHTTP2_INCLUDE_DIR:FILEPATH="$stage/packages/include" \
                         -DNGHTTP2_LIBRARY:FILEPATH="$stage/packages/lib/release/libnghttp2.a" \
@@ -336,7 +371,19 @@ pushd "$CURL_BUILD_DIR"
                 -DCMAKE_C_FLAGS:STRING="$plainopts" \
                 -DCMAKE_CXX_FLAGS:STRING="$opts" \
                 -DENABLE_THREADED_RESOLVER:BOOL=ON \
-                -DCMAKE_USE_OPENSSL:BOOL=TRUE \
+                -DCURL_USE_LIBPSL=OFF \
+                -DCURL_DISABLE_LDAP=ON \
+                -DCURL_DISABLE_LDAPS=ON \
+                -DCURL_BROTLI=OFF \
+                -DCURL_ZSTD=OFF \
+                -DCURL_USE_OPENSSL:BOOL=TRUE \
+                -DOPENSSL_ROOT_DIR="$stage/packages" \
+                -DOPENSSL_USE_STATIC_LIBS=ON \
+                -DOPENSSL_INCLUDE_DIR="$stage/packages/include" \
+                -DOPENSSL_SSL_LIBRARY="$stage/packages/lib/release/libssl.a" \
+                -DOPENSSL_CRYPTO_LIBRARY="$stage/packages/lib/release/libcrypto.a" \
+                -DZLIB_INCLUDE_DIR="$stage/packages/include/zlib-ng" \
+                -DZLIB_LIBRARY="$stage/packages/lib/release/libz.a" \
                 -DUSE_NGHTTP2:BOOL=TRUE \
                 -DNGHTTP2_INCLUDE_DIR:FILEPATH="$stage/packages/include" \
                 -DNGHTTP2_LIBRARY:FILEPATH="$stage/packages/lib/release/libnghttp2.a" \
